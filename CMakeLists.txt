@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(my_pcl_tutorial)
+project(PCL_Perception)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
