@@ -10,8 +10,8 @@ void pcl_uca::callback ( const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& msg ) {
 
 pcl_uca::pcl_uca ( const std::string& from_topic, ros::NodeHandle& nh ) :
     _cloud_rcv ( new pcl::PointCloud<pcl::PointXYZ> ),
-    _nh ( nh ),
-    _rotationMatrix() {
+    _nh ( nh )
+    {
 
     _sub = _nh.subscribe<pcl::PointCloud<pcl::PointXYZ> > ( from_topic,
             1,
@@ -185,9 +185,9 @@ void pcl_uca::broadcastTF (Eigen::Matrix4f inputHM,
                            std::string parent_frame,
                            std::string child_frame) {
     tf::Transform transform;
-    tf::TransformBroadcaster broadcaster;
     
-    const tfScalar x[3] = {inputHM(3,0), inputHM(3,1), inputHM(3,2)};
+    
+    const tfScalar x[3] = {inputHM(0,3), inputHM(1,3), inputHM(2,3)};
     const tfScalar rot[3][3] = {{inputHM(0,0), inputHM(0,1), inputHM(0,2)},
                                 {inputHM(1,0), inputHM(1,1), inputHM(1,2)},
                                 {inputHM(2,0), inputHM(2,1), inputHM(2,2)}};
@@ -197,9 +197,9 @@ void pcl_uca::broadcastTF (Eigen::Matrix4f inputHM,
                                       rot[1][0], rot[1][1], rot[1][2],
                                       rot[2][0], rot[2][1], rot[2][2]) ); 
     
-    std::cout << inputHM.block<3,3>(0,0) << std::endl << inputHM.block<3,1>(0,2) << std::endl << std::endl;
+    std::cout << inputHM << std::endl << std::endl;
     
-    broadcaster.sendTransform(tf::StampedTransform(transform, ros::Time::now(), parent_frame, child_frame) );
+    _broadcaster.sendTransform(tf::StampedTransform(transform, ros::Time::now(), parent_frame, child_frame) );
 }
 
 
