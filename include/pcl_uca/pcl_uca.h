@@ -100,6 +100,8 @@ private:
     
     Eigen::Matrix3f _rotationMatrix;
     
+    tf::TransformBroadcaster _broadcaster;
+    
 
 };
 
