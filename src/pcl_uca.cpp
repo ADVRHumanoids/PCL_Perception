@@ -31,6 +31,7 @@ pcl::PointCloud<pcl::PointXYZ>::ConstPtr pcl_uca::inputCloud() {
 
 pcl::PointCloud<pcl::Normal>::Ptr pcl_uca::computeNormals ( pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud,
         const double radius_search ) {
+    // Dataset
     pcl::PointCloud<pcl::Normal>::Ptr cloud_normals ( new pcl::PointCloud<pcl::Normal> );
 
     // Create the normal estimation class, and pass the input dataset to it
@@ -55,6 +56,7 @@ visualization_msgs::MarkerArray pcl_uca::fromNormaltoMarkerArray ( pcl::PointClo
         pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud,
         std::string frame_id, const double arrow_scale ) {
 
+    // Dataset
     geometry_msgs::Point pnt_start, pnt_end;
     visualization_msgs::MarkerArray ma;
 
@@ -151,6 +153,7 @@ Eigen::Matrix4f pcl_uca::fromNormalToHomogeneous(pcl::PointCloud<pcl::PointXYZ>:
     Eigen::Vector3f x_child, y_child, z_child, pointChildFrame;
     Eigen::Vector3f x_parent (1, 0, 0), y_parent (0, 1, 0), z_parent (0, 0, 1);
     
+    // Define z_child in order to coincide with the normal
     z_child << normal->points[0].normal_x,
                normal->points[0].normal_y,
                normal->points[0].normal_z;
@@ -184,31 +187,21 @@ Eigen::Matrix4f pcl_uca::fromNormalToHomogeneous(pcl::PointCloud<pcl::PointXYZ>:
 void pcl_uca::broadcastTF (Eigen::Matrix4f inputHM,
                            std::string parent_frame,
                            std::string child_frame) {
+    // Dataset
     tf::Transform transform;
     
-    
+    // Create const tfScalar elements to be assigned to transform element
     const tfScalar x[3] = {inputHM(0,3), inputHM(1,3), inputHM(2,3)};
     const tfScalar rot[3][3] = {{inputHM(0,0), inputHM(0,1), inputHM(0,2)},
                                 {inputHM(1,0), inputHM(1,1), inputHM(1,2)},
                                 {inputHM(2,0), inputHM(2,1), inputHM(2,2)}};
     
+    // Assign values to transform element
     transform.setOrigin ( tf::Vector3(x[0], x[1], x[2]) );
     transform.setBasis( tf::Matrix3x3(rot[0][0], rot[0][1], rot[0][2],
                                       rot[1][0], rot[1][1], rot[1][2],
                                       rot[2][0], rot[2][1], rot[2][2]) ); 
     
-    std::cout << inputHM << std::endl << std::endl;
-    
+    // Broadcast the transformation
     _broadcaster.sendTransform(tf::StampedTransform(transform, ros::Time::now(), parent_frame, child_frame) );
 }
-
-
-void pcl_uca::publish ( pcl::PointCloud<pcl::Normal>::Ptr msg_to_pub ) {
-    _pub.publish ( msg_to_pub );
-}
-
-void pcl_uca::publish ( pcl::PointCloud<pcl::PointXYZ>::Ptr msg_to_pub ) {
-    _pub.publish ( msg_to_pub );
-}
-
-

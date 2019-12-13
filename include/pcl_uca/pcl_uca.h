@@ -54,13 +54,16 @@ public:
                                                             pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud,
                                                             std::string frame_id, const double arrow_scale = 1.0);
     
+    /**
+     * Returns a boolean = 1 when the callback is done 
+     */
     bool isCallbackDone();
     
+    /**
+     * Returns the input cloud loaded from from topic
+     */
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud();
     
-    void publish (pcl::PointCloud<pcl::Normal>::Ptr msg_to_pub);
-    
-    void publish (pcl::PointCloud<pcl::PointXYZ>::Ptr msg_to_pub);
     
     /**
      * Compute the average point starting from a Point Cloud
@@ -74,10 +77,18 @@ public:
      */
     pcl::PointCloud<pcl::Normal>::Ptr averageNormals (pcl::PointCloud<pcl::Normal>::Ptr inputCloudNormals);
     
+    /**
+     * Returns the homogenous matrix that goes from an arbitrary parent frame to a frame with the z axis coincident with the computed normal
+     * @param: origin -> Pivot point of the normal
+     *         normal -> normal components 
+     *         inputCloud -> the Point Cloud Data used to compute the averaged normal
+     */
     Eigen::Matrix4f fromNormalToHomogeneous(pcl::PointCloud<pcl::PointXYZ>::Ptr origin,
                                             pcl::PointCloud<pcl::Normal>::Ptr normal,
                                             pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud);
-    
+    /**
+     * Broadcast the homogenous matrix 
+     */
     void broadcastTF(Eigen::Matrix4f inputHM,
                      std::string parent_frame,
                      std::string child_frame);
@@ -89,7 +100,6 @@ private:
      */
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr _cloud_rcv;
     
-    ros::Publisher _pub;
     ros::Subscriber _sub; 
     
     ros::NodeHandle& _nh;
