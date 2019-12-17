@@ -32,7 +32,7 @@ int main ( int argc, char** argv ) {
             seg.setNormalDistanceWeight ( 0.1 );
             seg.setMethodType ( pcl::SAC_RANSAC );
             seg.setMaxIterations ( 100 );
-            seg.setDistanceThreshold ( 0.03 );
+            seg.setDistanceThreshold ( 0.01 );
             seg.setInputCloud ( pcl_segmentation.inputCloud() );
             seg.setInputNormals ( cloud_normals );
             seg.segment ( *inliers, *coefficients );
@@ -60,9 +60,15 @@ int main ( int argc, char** argv ) {
             visualization_msgs::MarkerArray maAverage;
             visualization_msgs::MarkerArray ma_seg;
 
-            cloud_plane_normals = pcl_segmentation.computeNormals ( cloud_plane, 0.06 );
+            cloud_plane_normals = pcl_segmentation.computeNormals ( cloud_plane, 0.17);
             averagePoints = pcl_segmentation.averagePoints ( cloud_plane );
-            averageNormals = pcl_segmentation.averageNormals ( cloud_plane_normals );
+            // averageNormals = pcl_segmentation.averageNormals ( cloud_plane_normals );
+            averageNormals->width = 1;
+            averageNormals->height = 1;
+            averageNormals->points.resize (averageNormals->width * averageNormals->height);
+            averageNormals->points[0].normal_x = cloud_plane_normals->points[(cloud_plane_normals->width)/2 + 10].normal_x;
+            averageNormals->points[0].normal_y = cloud_plane_normals->points[(cloud_plane_normals->width)/2 + 10].normal_y;
+            averageNormals->points[0].normal_z = cloud_plane_normals->points[(cloud_plane_normals->width)/2 + 10].normal_z;
             
             // Transorm the computed normal in a MarkerArray
             maAverage = pcl_segmentation.fromNormaltoMarkerArray ( averageNormals, averagePoints, "world", 0.5 );
