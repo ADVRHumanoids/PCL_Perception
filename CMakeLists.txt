@@ -12,7 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_ros
   roscpp
   sensor_msgs
+  std_msgs
   tf
+  message_generation
 )
 
 find_package(PCL 1.7 REQUIRED)
@@ -58,11 +60,10 @@ find_package(PCL 1.7 REQUIRED)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+ add_service_files(
+   FILES
+   set_filter_params.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -72,10 +73,11 @@ find_package(PCL 1.7 REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   sensor_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs
+   sensor_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -109,7 +111,7 @@ find_package(PCL 1.7 REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES my_pcl_tutorial
-#  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs
+  CATKIN_DEPENDS message_runtime pcl_conversions pcl_ros roscpp sensor_msgs std_msgs tf 
 #  DEPENDS system_lib
 )
 
@@ -210,9 +212,6 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(pass_through src/pass_through.cpp)
-target_link_libraries(pass_through ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-
 add_executable(voxel_grid src/voxel_grid.cpp)
 target_link_libraries(voxel_grid ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
@@ -227,3 +226,6 @@ target_link_libraries(planar_segmentation_node ${catkin_LIBRARIES} ${PCL_LIBRARI
 
 add_executable(normal_surface_node src/normal_surface_node.cpp)
 target_link_libraries(normal_surface_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
+
+add_executable(pass_through src/pass_through.cpp)
+target_link_libraries(pass_through ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
