@@ -4,6 +4,7 @@
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/features/normal_3d.h>
+#include <pcl/filters/passthrough.h>
 #include <geometry_msgs/Point.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -29,12 +30,16 @@ public:
     pcl_uca(const std::string& from_topic, ros::NodeHandle& nh);
     
     /**
-     * return internal Point Cloud used forn normal computation
-     */
-    pcl::PointCloud<pcl::PointXYZ>::ConstPtr getPointCloud()
-    { 
-        return _cloud_rcv;
-    }
+     * Pass Through FIlter along a specified direction with set boundaries
+     * @param: inputCloud -> Point Cloud Data in input
+     *         filterFieldName -> Axis along which the filtering is performed
+     *         lower_lim -> lower boundary
+     *         upperl_lim -> upper boundary
+     */ 
+    pcl::PointCloud<pcl::PointXYZ>::Ptr passThroughFilter(pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud,
+                                                          const std::string filterFieldName,
+                                                          const float lower_lim,
+                                                          const float upper_lim);
     
     /**
      * Computes normals from internal Point Cloud

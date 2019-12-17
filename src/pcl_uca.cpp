@@ -10,8 +10,7 @@ void pcl_uca::callback ( const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& msg ) {
 
 pcl_uca::pcl_uca ( const std::string& from_topic, ros::NodeHandle& nh ) :
     _cloud_rcv ( new pcl::PointCloud<pcl::PointXYZ> ),
-    _nh ( nh )
-    {
+    _nh ( nh ) {
 
     _sub = _nh.subscribe<pcl::PointCloud<pcl::PointXYZ> > ( from_topic,
             1,
@@ -27,7 +26,20 @@ pcl::PointCloud<pcl::PointXYZ>::ConstPtr pcl_uca::inputCloud() {
     return _cloud_rcv;
 }
 
+pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_uca::passThroughFilter ( pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud,
+        const std::string filterFieldName,
+        const float lower_lim,
+        const float upper_lim ) {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PassThrough<pcl::PointXYZ> pass;
 
+    pass.setInputCloud ( inputCloud );
+    pass.setFilterFieldName ( filterFieldName );
+    pass.setFilterLimits ( lower_lim, upper_lim );
+    pass.filter ( *cloud_filtered );
+
+    return cloud_filtered;
+}
 
 pcl::PointCloud<pcl::Normal>::Ptr pcl_uca::computeNormals ( pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud,
         const double radius_search ) {
@@ -107,12 +119,12 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_uca::averagePoints ( pcl::PointCloud<pcl
         sum_y += inputCloud->points[i].y;
         sum_z += inputCloud->points[i].z;
     }
-    
-    pcl::PointCloud<pcl::PointXYZ>::Ptr average ( new pcl::PointCloud<pcl::PointXYZ>); 
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr average ( new pcl::PointCloud<pcl::PointXYZ> );
 
     average->width = 1;
     average->height = 1;
-    average->points.resize (average->width * average->height);
+    average->points.resize ( average->width * average->height );
     average->points[0].x = sum_x/inputCloud->width;
     average->points[0].y = sum_y/inputCloud->width;
     average->points[0].z = sum_z/inputCloud->width;
@@ -128,17 +140,20 @@ pcl::PointCloud< pcl::Normal >::Ptr pcl_uca::averageNormals ( pcl::PointCloud< p
     pcl::PointCloud<pcl::Normal>::Ptr average ( new pcl::PointCloud<pcl::Normal> );
 
     for ( int i = 0; i < inputCloudNormals->width; i++ ) {
-        if (!std::isnan (inputCloudNormals->points[i].normal_x) ){
-        sumNormal_x += inputCloudNormals->points[i].normal_x;}
-        if (!std::isnan (inputCloudNormals->points[i].normal_y) ){
-        sumNormal_y += inputCloudNormals->points[i].normal_y;}
-        if (!std::isnan (inputCloudNormals->points[i].normal_z) ){
-        sumNormal_z += inputCloudNormals->points[i].normal_z;}
+        if ( !std::isnan ( inputCloudNormals->points[i].normal_x ) ) {
+            sumNormal_x += inputCloudNormals->points[i].normal_x;
+        }
+        if ( !std::isnan ( inputCloudNormals->points[i].normal_y ) ) {
+            sumNormal_y += inputCloudNormals->points[i].normal_y;
+        }
+        if ( !std::isnan ( inputCloudNormals->points[i].normal_z ) ) {
+            sumNormal_z += inputCloudNormals->points[i].normal_z;
+        }
     }
 
     average->width = 1;
     average->height = 1;
-    average->points.resize (average->width * average->height);
+    average->points.resize ( average->width * average->height );
     average->points[0].normal_x = sumNormal_x/inputCloudNormals->width;
     average->points[0].normal_y = sumNormal_y/inputCloudNormals->width;
     average->points[0].normal_z = sumNormal_z/inputCloudNormals->width;
@@ -146,62 +161,63 @@ pcl::PointCloud< pcl::Normal >::Ptr pcl_uca::averageNormals ( pcl::PointCloud< p
     return average;
 }
 
-Eigen::Matrix4f pcl_uca::fromNormalToHomogeneous(pcl::PointCloud<pcl::PointXYZ>::Ptr origin,
-                                                pcl::PointCloud<pcl::Normal>::Ptr normal,
-                                                pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud) {
+Eigen::Matrix4f pcl_uca::fromNormalToHomogeneous ( pcl::PointCloud<pcl::PointXYZ>::Ptr origin,
+        pcl::PointCloud<pcl::Normal>::Ptr normal,
+        pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud ) {
     // Dataset
     Eigen::Vector3f x_child, y_child, z_child, pointChildFrame;
-    Eigen::Vector3f x_parent (1, 0, 0), y_parent (0, 1, 0), z_parent (0, 0, 1);
-    
+    Eigen::Vector3f x_parent ( 1, 0, 0 ), y_parent ( 0, 1, 0 ), z_parent ( 0, 0, 1 );
+
     // Define z_child in order to coincide with the normal
     z_child << normal->points[0].normal_x,
-               normal->points[0].normal_y,
-               normal->points[0].normal_z;
-    
-    
+            normal->points[0].normal_y,
+            normal->points[0].normal_z;
+
+
     // Choose an arbitrary point inside the plane Point Cloud and create the x_child versor
     int ind = inputCloud->width / 2;
-    pointChildFrame << inputCloud->points[ind].x - origin->points[0].x, 
-                       inputCloud->points[ind].y - origin->points[0].y,
-                       inputCloud->points[ind].z - origin->points[0].z;
-    
+    pointChildFrame << inputCloud->points[ind].x - origin->points[0].x,
+                    inputCloud->points[ind].y - origin->points[0].y,
+                    inputCloud->points[ind].z - origin->points[0].z;
+
     x_child << pointChildFrame / pointChildFrame.norm();
-    
+
     // Create the y_child versor using the cross product between z_child and x_child
-    y_child = z_child.cross(x_child);
-    
+    y_child = z_child.cross ( x_child );
+
     // Create the rotation matrix between parent and child frames
     _rotationMatrix << x_child.transpose() * x_parent, y_child.transpose() * x_parent, z_child.transpose() * x_parent,
-                       x_child.transpose() * y_parent, y_child.transpose() * y_parent, z_child.transpose() * y_parent,
-                       x_child.transpose() * z_parent, y_child.transpose() * z_parent, z_child.transpose() * z_parent;
-    
+                    x_child.transpose() * y_parent, y_child.transpose() * y_parent, z_child.transpose() * y_parent,
+                    x_child.transpose() * z_parent, y_child.transpose() * z_parent, z_child.transpose() * z_parent;
+
     // Create the homogeneous matrix
     Eigen::Matrix4f hM;
-    hM.block<3,3>(0,0) = _rotationMatrix;
-    hM.block<1,4>(3,0) << 0, 0, 0, 1;
-    hM.block<3,1>(0,3) << origin->points[0].x, origin->points[0].y, origin->points[0].z;
-    
-    return hM;
-}    
+    hM.block<3,3> ( 0,0 ) = _rotationMatrix;
+    hM.block<1,4> ( 3,0 ) << 0, 0, 0, 1;
+    hM.block<3,1> ( 0,3 ) << origin->points[0].x, origin->points[0].y, origin->points[0].z;
 
-void pcl_uca::broadcastTF (Eigen::Matrix4f inputHM,
-                           std::string parent_frame,
-                           std::string child_frame) {
+    return hM;
+}
+
+void pcl_uca::broadcastTF ( Eigen::Matrix4f inputHM,
+                            std::string parent_frame,
+                            std::string child_frame ) {
     // Dataset
     tf::Transform transform;
-    
+
     // Create const tfScalar elements to be assigned to transform element
-    const tfScalar x[3] = {inputHM(0,3), inputHM(1,3), inputHM(2,3)};
-    const tfScalar rot[3][3] = {{inputHM(0,0), inputHM(0,1), inputHM(0,2)},
-                                {inputHM(1,0), inputHM(1,1), inputHM(1,2)},
-                                {inputHM(2,0), inputHM(2,1), inputHM(2,2)}};
-    
+    const tfScalar x[3] = {inputHM ( 0,3 ), inputHM ( 1,3 ), inputHM ( 2,3 ) };
+    const tfScalar rot[3][3] = {{inputHM ( 0,0 ), inputHM ( 0,1 ), inputHM ( 0,2 ) },
+        {inputHM ( 1,0 ), inputHM ( 1,1 ), inputHM ( 1,2 ) },
+        {inputHM ( 2,0 ), inputHM ( 2,1 ), inputHM ( 2,2 ) }
+    };
+
     // Assign values to transform element
-    transform.setOrigin ( tf::Vector3(x[0], x[1], x[2]) );
-    transform.setBasis( tf::Matrix3x3(rot[0][0], rot[0][1], rot[0][2],
-                                      rot[1][0], rot[1][1], rot[1][2],
-                                      rot[2][0], rot[2][1], rot[2][2]) ); 
-    
+    transform.setOrigin ( tf::Vector3 ( x[0], x[1], x[2] ) );
+    transform.setBasis ( tf::Matrix3x3 ( rot[0][0], rot[0][1], rot[0][2],
+                                         rot[1][0], rot[1][1], rot[1][2],
+                                         rot[2][0], rot[2][1], rot[2][2] ) );
+
     // Broadcast the transformation
-    _broadcaster.sendTransform(tf::StampedTransform(transform, ros::Time::now(), parent_frame, child_frame) );
+    _broadcaster.sendTransform ( tf::StampedTransform ( transform, ros::Time::now(), parent_frame, child_frame ) );
 }
