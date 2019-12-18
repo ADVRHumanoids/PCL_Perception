@@ -1,8 +1,10 @@
 <launch>
 
-<node pkg = "PCL_Perception" name = "passThrough_filter" type = "pass_through"/>
+<!-- Run pass through filter node -->
+<node pkg = "PCL_Perception" name = "passThrough_filter" type = "pass_through" />
 
-<node pkg = "PCL_Perception" name = "planarSegmentation_node" type = "planar_segmentation_node"/>
+<!-- Run planar segmentation node -->
+<node pkg = "PCL_Perception" name = "planarSegmentation_node" type = "planar_segmentation_node" />
 
 </launch>
 

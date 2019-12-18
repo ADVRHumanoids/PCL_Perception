@@ -50,6 +50,19 @@ public:
                                                      double radius_search);
     
     /**
+     * Perform a planar segmentation using the normals of each point inside the Point Cloud
+     * @param: inputCloud -> Point Cloud Data in input
+     *         coefficients -> Contains the coefficients of the extracted plane (ax + by + cz + d = 0)
+     *         inliers -> Contains the indices of the inliers relative to the extracted plane
+     */
+    void planarSegmentationFromNormals(pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud,
+                                       pcl::ModelCoefficients::Ptr coefficients,
+                                       pcl::PointIndices::Ptr inliers,
+                                       double normalDistanceWeight,
+                                       int maxIterations,
+                                       double distanceThreshold);
+    
+    /**
      * Advertise the computed normals as a MarkerArray
      * @param: cloud_normals -> computed normals
      *         inputCloud -> Point Cloud Data from which the normals have been computed
