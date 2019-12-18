@@ -1,0 +1,4 @@
+float32 normalDistanceWeight
+int64 maxIterations
+float32 distanceThreshold
+---

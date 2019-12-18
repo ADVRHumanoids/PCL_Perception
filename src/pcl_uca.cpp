@@ -30,7 +30,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_uca::passThroughFilter ( pcl::PointCloud
         const std::string filterFieldName,
         const float lower_lim,
         const float upper_lim ) {
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered ( new pcl::PointCloud<pcl::PointXYZ> );
     pcl::PassThrough<pcl::PointXYZ> pass;
 
     pass.setInputCloud ( inputCloud );
@@ -63,6 +63,29 @@ pcl::PointCloud<pcl::Normal>::Ptr pcl_uca::computeNormals ( pcl::PointCloud<pcl:
 
     return cloud_normals;
 }
+
+void pcl_uca::planarSegmentationFromNormals ( pcl::PointCloud< pcl::PointXYZ >::ConstPtr inputCloud,
+        pcl::ModelCoefficients::Ptr coefficients,
+        pcl::PointIndices::Ptr inliers,
+        double normalDistanceWeight,
+        int maxIterations,
+        double distanceThreshold ) {
+    
+    pcl::PointCloud<pcl::Normal>::Ptr cloud_normals;
+    pcl::SACSegmentationFromNormals<pcl::PointXYZ, pcl::Normal> seg;
+
+    cloud_normals = pcl_uca::computeNormals ( inputCloud, 0.3 );
+    seg.setModelType ( pcl::SACMODEL_NORMAL_PLANE );
+    seg.setNormalDistanceWeight ( normalDistanceWeight );
+    seg.setMethodType ( pcl::SAC_RANSAC );
+    seg.setMaxIterations ( maxIterations );
+    seg.setDistanceThreshold ( distanceThreshold );
+    seg.setInputCloud ( inputCloud );
+    seg.setInputNormals ( cloud_normals );
+    seg.segment ( *inliers, *coefficients );
+
+}
+
 
 visualization_msgs::MarkerArray pcl_uca::fromNormaltoMarkerArray ( pcl::PointCloud<pcl::Normal>::Ptr cloud_normals,
         pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud,

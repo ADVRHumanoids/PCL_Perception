@@ -63,6 +63,7 @@ find_package(PCL 1.7 REQUIRED)
  add_service_files(
    FILES
    set_filter_params.srv
+   set_segmentation_params.srv
  )
 
 ## Generate actions in the 'action' folder
