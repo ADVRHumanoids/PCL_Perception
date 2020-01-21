@@ -19,9 +19,13 @@
 #include <ros/ros.h>
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
+#include <tf/transform_datatypes.h>
+#include <tf_conversions/tf_eigen.h>
+#include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <Eigen/Eigen>
+#include <geometry_msgs/PoseStamped.h>
 
 
 class pcl_uca
@@ -101,13 +105,12 @@ public:
      *         normal -> normal components 
      *         inputCloud -> the Point Cloud Data used to compute the averaged normal
      */
-    Eigen::Matrix4f fromNormalToHomogeneous(pcl::PointCloud<pcl::PointXYZ>::Ptr origin,
-                                            pcl::PointCloud<pcl::Normal>::Ptr normal,
-                                            pcl::PointCloud<pcl::PointXYZ>::Ptr inputCloud);
+    Eigen::Affine3d fromNormalToHomogeneous(pcl::PointCloud<pcl::PointXYZ>::Ptr origin,
+                                            pcl::PointCloud<pcl::Normal>::Ptr normal);
     /**
      * Broadcast the homogenous matrix 
      */
-    void broadcastTF(Eigen::Matrix4f inputHM,
+    void broadcastTF(Eigen::Affine3d inputHM,
                      std::string parent_frame,
                      std::string child_frame);
      
@@ -126,7 +129,7 @@ private:
     
     void callback(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& msg);
     
-    Eigen::Matrix3f _rotationMatrix;
+    Eigen::Matrix3d _rotationMatrix;
     
     tf::TransformBroadcaster _broadcaster;
     

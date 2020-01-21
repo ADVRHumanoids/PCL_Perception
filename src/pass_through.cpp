@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 #include <pcl_uca/pcl_uca.h>
 #include <ros/service_server.h>
 #include <PCL_Perception/set_filter_params.h>
@@ -35,10 +36,14 @@ int main(int argc, char** argv)
   
 
   while (ros::ok()) 
-  {   
+  {  
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     cloud_filtered = pcl.passThroughFilter(pcl.inputCloud(), filterFieldName, lower_limit, upper_limit);
     
     pub.publish(cloud_filtered);
+    
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+   // std::cout << "Pass Through Filtering took " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "us. \n";
     
     ros::spinOnce();
     loop_rate.sleep();

@@ -3,6 +3,7 @@
 #include <pcl_uca/pcl_uca.h>
 #include <ros/service_server.h>
 #include <PCL_Perception/set_segmentation_params.h>
+#include <chrono>
 
 double normalDistanceWeight = 0.1;
 int maxIterations = 100;
@@ -37,9 +38,11 @@ int main ( int argc, char** argv ) {
 
     while ( ros::ok() ) {
         if ( pcl_segmentation.isCallbackDone() ) {
+            
+            std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 
             pcl_segmentation.planarSegmentationFromNormals ( pcl_segmentation.inputCloud(), coefficients, inliers, normalDistanceWeight, maxIterations, distanceThreshold);
-
+            
             extract.setInputCloud ( pcl_segmentation.inputCloud() );
             extract.setIndices ( inliers );
             extract.setNegative ( false );
@@ -48,6 +51,9 @@ int main ( int argc, char** argv ) {
             pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_plane ( new pcl::PointCloud<pcl::PointXYZ> );
             extract.filter ( *cloud_plane );
             pub.publish ( cloud_plane );
+            
+            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+          //  std::cout << "Planar segmentation took " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "us.\n";
 
             if ( inliers->indices.size () == 0 ) {
                 PCL_ERROR ( "Could not estimate a planar model for the given dataset." );
@@ -55,6 +61,8 @@ int main ( int argc, char** argv ) {
             }
 
             // Calculate normals of cloud_plane
+            start = std::chrono::steady_clock::now();
+            
             pcl::PointCloud<pcl::Normal>::Ptr cloud_plane_normals ( new pcl::PointCloud<pcl::Normal> );
             pcl::PointCloud<pcl::PointXYZ>::Ptr averagePoints ( new pcl::PointCloud<pcl::PointXYZ> );
             pcl::PointCloud<pcl::Normal>::Ptr averageNormals ( new pcl::PointCloud<pcl::Normal> );
@@ -79,13 +87,20 @@ int main ( int argc, char** argv ) {
             // Publish it on rviz
             pub_avg.publish ( maAverage );
             pub_seg.publish ( ma_seg );
+            end = std::chrono::steady_clock::now();
+           // std::cout << "Marker generation took " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "us.\n";
 
             // Create the homogenous matrix related to the computed normal
-            Eigen::Matrix4f hM;
-            hM = pcl_segmentation.fromNormalToHomogeneous ( averagePoints, averageNormals, cloud_plane );
+            Eigen::Affine3d hM;
+            start = std::chrono::steady_clock::now();
+            
+            hM = pcl_segmentation.fromNormalToHomogeneous ( averagePoints, averageNormals); 
 
             // Brodcast the created frame
             pcl_segmentation.broadcastTF ( hM, "ci/world_odom", "normal_frame" );
+            
+            end = std::chrono::steady_clock::now();
+            //std::cout << "Frame generation took " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "us.\n";
 
         }
 
