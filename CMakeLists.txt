@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0)
 project(PCL_Perception)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -14,7 +14,9 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   tf
+  tf_conversions
   message_generation
+  cartesian_interface
 )
 
 find_package(PCL 1.7 REQUIRED)
@@ -64,6 +66,7 @@ find_package(PCL 1.7 REQUIRED)
    FILES
    set_filter_params.srv
    set_segmentation_params.srv
+   SetReferenceFrame.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -78,6 +81,7 @@ find_package(PCL 1.7 REQUIRED)
    DEPENDENCIES
    std_msgs
    sensor_msgs
+   geometry_msgs
  )
 
 ################################################
@@ -112,7 +116,7 @@ find_package(PCL 1.7 REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES my_pcl_tutorial
-  CATKIN_DEPENDS message_runtime pcl_conversions pcl_ros roscpp sensor_msgs std_msgs tf 
+  CATKIN_DEPENDS message_runtime pcl_conversions pcl_ros roscpp sensor_msgs std_msgs tf tf_conversions
 #  DEPENDS system_lib
 )
 
@@ -126,7 +130,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
-)
+  )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -230,3 +234,9 @@ target_link_libraries(normal_surface_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} p
 
 add_executable(pass_through src/pass_through.cpp)
 target_link_libraries(pass_through ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
+
+add_executable(cartesian_task_node src/cartesian_task_node.cpp)
+target_link_libraries(cartesian_task_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
+
+add_executable(return_node src/return_node.cpp)
+target_link_libraries(return_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
