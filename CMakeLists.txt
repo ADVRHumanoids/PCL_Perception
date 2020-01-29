@@ -115,7 +115,7 @@ find_package(PCL 1.7 REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES my_pcl_tutorial
+#  LIBRARIES PCL_Perception
   CATKIN_DEPENDS message_runtime pcl_conversions pcl_ros roscpp sensor_msgs std_msgs tf tf_conversions
 #  DEPENDS system_lib
 )
@@ -128,8 +128,8 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
   )
 
 ## Declare a C++ library
@@ -155,12 +155,40 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+
+add_executable(voxel_grid src/voxel_grid.cpp)
+target_link_libraries(voxel_grid ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(statistical_removal src/statistical_removal.cpp)
+target_link_libraries(statistical_removal ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_library(pcl_uca src/pcl_uca.cpp)
+target_link_libraries(pcl_uca ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(planar_segmentation_node src/planar_segmentation_node.cpp)
+add_dependencies(planar_segmentation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(planar_segmentation_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
+
+add_executable(normal_surface_node src/normal_surface_node.cpp)
+add_dependencies(normal_surface_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(normal_surface_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
+
+add_executable(pass_through src/pass_through.cpp)
+add_dependencies(pass_through ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(pass_through ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
+
+add_executable(cartesian_task_node src/cartesian_task_node.cpp)
+add_dependencies(cartesian_task_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(cartesian_task_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
+
+add_executable(return_node src/return_node.cpp)
+target_link_libraries(return_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
 
 #############
 ## Install ##
@@ -182,13 +210,56 @@ include_directories(
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 
-## Mark libraries for installation
-## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
+# Mark libraries for installation
+# See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
+install(TARGETS pcl_uca
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS return_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS cartesian_task_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS pass_through
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS statistical_removal
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS voxel_grid
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS normal_surface_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS planar_segmentation_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
@@ -198,11 +269,11 @@ include_directories(
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
+install(FILES
+   launch/normal_plane.launch
 #   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##
@@ -217,26 +288,3 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(voxel_grid src/voxel_grid.cpp)
-target_link_libraries(voxel_grid ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-
-add_executable(statistical_removal src/statistical_removal.cpp)
-target_link_libraries(statistical_removal ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-
-add_library(pcl_uca src/pcl_uca.cpp)
-target_link_libraries(pcl_uca ${catkin_LIBRARIES} ${PCL_LIBRARIES})
-
-add_executable(planar_segmentation_node src/planar_segmentation_node.cpp)
-target_link_libraries(planar_segmentation_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
-
-add_executable(normal_surface_node src/normal_surface_node.cpp)
-target_link_libraries(normal_surface_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
-
-add_executable(pass_through src/pass_through.cpp)
-target_link_libraries(pass_through ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
-
-add_executable(cartesian_task_node src/cartesian_task_node.cpp)
-target_link_libraries(cartesian_task_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
-
-add_executable(return_node src/return_node.cpp)
-target_link_libraries(return_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)

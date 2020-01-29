@@ -24,7 +24,8 @@ int main(int argc, char** argv)
 {     
   ros::init(argc, argv, "passThrough_filter");
   ros::NodeHandle nh;
-  pcl_uca pcl ("octomap_point_cloud_centers", nh );
+//   pcl_uca pcl ("octomap_point_cloud_centers", nh );
+  pcl_uca pcl ("rviz_selected_points", nh );
   ros::Publisher pub = nh.advertise<PointCloud>("/filtered_cloud", 10);
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
   
@@ -37,13 +38,13 @@ int main(int argc, char** argv)
 
   while (ros::ok()) 
   {  
-    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+//     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     cloud_filtered = pcl.passThroughFilter(pcl.inputCloud(), filterFieldName, lower_limit, upper_limit);
     
     pub.publish(cloud_filtered);
     
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-   // std::cout << "Pass Through Filtering took " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "us. \n";
+//     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+//    std::cout << "Pass Through Filtering took " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "us. \n";
     
     ros::spinOnce();
     loop_rate.sleep();
