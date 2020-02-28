@@ -43,7 +43,8 @@ public:
     pcl::PointCloud<pcl::PointXYZ>::Ptr passThroughFilter(pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud,
                                                           const std::string filterFieldName,
                                                           const float lower_lim,
-                                                          const float upper_lim);
+                                                          const float upper_lim,
+							  const bool negative);
     
     /**
      * Computes normals from internal Point Cloud

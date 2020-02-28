@@ -8,8 +8,6 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  pcl_conversions
-  pcl_ros
   roscpp
   sensor_msgs
   std_msgs
@@ -114,10 +112,10 @@ find_package(PCL 1.7 REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES PCL_Perception
+   INCLUDE_DIRS include
+  LIBRARIES PCL_Perception
   CATKIN_DEPENDS message_runtime pcl_conversions pcl_ros roscpp sensor_msgs std_msgs tf tf_conversions
-#  DEPENDS system_lib
+  DEPENDS system_lib
 )
 
 ###########

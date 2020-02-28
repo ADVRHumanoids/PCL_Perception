@@ -6,9 +6,14 @@
 
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
-double lower_limit = 0.1;
-double upper_limit = 1.5;
-std::string filterFieldName = "z";
+// double lower_limit = 0.1;
+// double upper_limit = 1.5;
+// std::string filterFieldName = "z";
+
+double lower_limit;
+double upper_limit;
+std::string filterFieldName;
+bool negative;
 
 bool set_filter_params(PCL_Perception::set_filter_params::Request& req,
                        PCL_Perception::set_filter_params::Response& res)
@@ -21,16 +26,27 @@ bool set_filter_params(PCL_Perception::set_filter_params::Request& req,
 }
 
 int main(int argc, char** argv)
-{     
+{ 
   ros::init(argc, argv, "passThrough_filter");
   ros::NodeHandle nh;
 //   pcl_uca pcl ("octomap_point_cloud_centers", nh );
-  pcl_uca pcl ("rviz_selected_points", nh );
+  pcl_uca pcl ("velodyne_points", nh );
   ros::Publisher pub = nh.advertise<PointCloud>("/filtered_cloud", 10);
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
   
   
   ros::ServiceServer service = nh.advertiseService("set_filter_params", set_filter_params);
+  
+  if (!nh.hasParam("lower_limit") || !nh.hasParam("upper_limit") || !nh.hasParam("filterFieldName"))
+  {
+    std::cerr << "Filter parameters missing!" << std::endl;
+  }
+  else
+  {
+    nh.getParam("lower_limit", lower_limit);
+    nh.getParam("upper_limit", upper_limit);
+    nh.getParam("filterFieldName", filterFieldName);
+    nh.getParam("filter_behavior", negative);
   
   ros::Rate loop_rate(10);
   
@@ -38,16 +54,14 @@ int main(int argc, char** argv)
 
   while (ros::ok()) 
   {  
-//     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-    cloud_filtered = pcl.passThroughFilter(pcl.inputCloud(), filterFieldName, lower_limit, upper_limit);
+    cloud_filtered = pcl.passThroughFilter(pcl.inputCloud(), filterFieldName, lower_limit, upper_limit, negative);
     
     pub.publish(cloud_filtered);
     
-//     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-//    std::cout << "Pass Through Filtering took " << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() << "us. \n";
     
     ros::spinOnce();
     loop_rate.sleep();
+  }
   }
 }
 

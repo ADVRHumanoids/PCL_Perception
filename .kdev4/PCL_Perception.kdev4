@@ -16,11 +16,11 @@ Install Directory=file:///home/luca/catkin_ws/install_isolated
 
 [CMake][CMake Build Directory 1]
 Build Directory Path=file:///home/luca/catkin_ws/build/PCL_Perception/
-Build Type=Debug
+Build Type=Release
 CMake Binary=file:///usr/bin/cmake
 Environment Profile=
 Extra Arguments=
-Install Directory=file:///usr/local
+Install Directory=file:///home/luca/catkin_ws/install
 
 [Defines And Includes][Compiler]
 Name=GCC
