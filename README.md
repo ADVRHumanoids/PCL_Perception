@@ -39,6 +39,7 @@ To rotate the velodyne joint:
      ctrl_mode: [26]
      aux_name: ''
      aux: [0]" -r 20`
+     
 The velodyne should be now rotating and selecting /octomap_point_cloud_centers in rviz topic the whole environment should be visible as PointCloud
 
 Use `rosservice call /set_filter_parameters` to set the desired pass through filter behaviour in order to filter the ground and keep only the object previously added on gazebo.
