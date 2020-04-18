@@ -30,14 +30,14 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_uca::passThroughFilter ( pcl::PointCloud
         const std::string filterFieldName,
         const float lower_lim,
         const float upper_lim,
-	const bool negative ) {
+        const bool negative ) {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered ( new pcl::PointCloud<pcl::PointXYZ> );
     pcl::PassThrough<pcl::PointXYZ> pass;
 
     pass.setInputCloud ( inputCloud );
     pass.setFilterFieldName ( filterFieldName );
     pass.setFilterLimits ( lower_lim, upper_lim );
-    pass.setNegative( negative );
+    pass.setNegative(negative);
     pass.filter ( *cloud_filtered );
 
     return cloud_filtered;

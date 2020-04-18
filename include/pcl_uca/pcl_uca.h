@@ -44,7 +44,7 @@ public:
                                                           const std::string filterFieldName,
                                                           const float lower_lim,
                                                           const float upper_lim,
-							  const bool negative);
+                                                          const bool negative);
     
     /**
      * Computes normals from internal Point Cloud

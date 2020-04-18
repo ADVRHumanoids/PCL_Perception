@@ -1,0 +1,34 @@
+<launch>
+    
+    <arg name="gazebo_sim" default="true"/>
+    <arg name="rviz" default="true"/>
+    <arg name="octomap" default="true"/>
+    <arg name="pass_through_filter" default="true"/>
+    <arg name="planar_segmentation" default="true"/>
+      
+    <include if="$(arg gazebo_sim)" file="$(find PCL_Perception)/launch/gazebo_sim.launch"/>
+    
+    <!-- Include octomap if required -->
+    <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
+        <param name="resolution" value="0.05" />
+        <!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
+        <param name="frame_id" type="string" value="world" />
+        <!-- maximum range to integrate (speedup!) -->
+        <param name="sensor_model/max_range" value="5.0" />
+        <!-- data source to integrate (PointCloud2) -->
+        <remap from="cloud_in" to="/velodyne_points" />
+    </node>
+    
+    <!--Pass Through Filter with default arguments: +/- 50 on z-axis with normal filter behavior
+        use the remap command to specify the input topic on which the point cloud is loaded-->
+    <node if="$(arg pass_through_filter)" pkg="PCL_Perception" type="pass_through" name="pass_through_filter" output="screen"
+          args = "-50.0 50.0 z false">
+        <remap unless="$(arg octomap)" from="/cloud_in" to="/velodyne_points"/> 
+        <remap if="$(arg octomap)" from="/cloud_in" to="/octomap_point_cloud_centers"/>
+    </node>
+            
+    <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz"
+          args="-d $(find PCL_Perception)/config.rviz" output="screen"/>
+    
+</launch>
+    

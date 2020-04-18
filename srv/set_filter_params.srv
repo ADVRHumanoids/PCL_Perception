@@ -1,5 +1,6 @@
 float32 lower_lim
 float32 upper_lim
 string filterFieldName
+int8 negative
 ---
 

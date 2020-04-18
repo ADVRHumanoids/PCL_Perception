@@ -3,7 +3,7 @@
 #include <pcl_uca/pcl_uca.h>
 #include <ros/service_server.h>
 #include <PCL_Perception/set_segmentation_params.h>
-#include <chrono>
+#include <std_srvs/Empty.h>
 
 double normalDistanceWeight = 0.1;
 int maxIterations = 100;
@@ -32,7 +32,6 @@ int main ( int argc, char** argv ) {
     pcl::PointCloud<pcl::Normal>::Ptr averageNormals ( new pcl::PointCloud<pcl::Normal> );
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_plane ( new pcl::PointCloud<pcl::PointXYZ> );
 
-
     ros::Rate loop_rate ( 10 );
 
     // Dataset
@@ -41,9 +40,12 @@ int main ( int argc, char** argv ) {
     pcl::ExtractIndices<pcl::PointXYZ> extract;
     pcl::ExtractIndices<pcl::Normal> extract_normal;
 
-    while ( ros::ok() ) {
-        if ( pcl_segmentation.isCallbackDone() ) {
-            pcl_segmentation.planarSegmentationFromNormals ( pcl_segmentation.inputCloud(), coefficients, inliers, normalDistanceWeight, maxIterations, distanceThreshold);
+
+    while ( ros::ok() ) 
+    {
+        if ( pcl_segmentation.isCallbackDone() ) 
+        {            
+            pcl_segmentation.planarSegmentationFromNormals ( pcl_segmentation.inputCloud(), coefficients, inliers, normalDistanceWeight, maxIterations, distanceThreshold);               
             
             extract.setInputCloud ( pcl_segmentation.inputCloud() );
             extract.setIndices ( inliers );
@@ -52,7 +54,7 @@ int main ( int argc, char** argv ) {
             // Write the planar inliers
             extract.filter ( *cloud_plane );
             pub.publish ( cloud_plane );
-            
+                
             if ( inliers->indices.size () == 0 ) {
                 PCL_ERROR ( "Could not estimate a planar model for the given dataset." );
                 return ( -1 );
@@ -60,7 +62,7 @@ int main ( int argc, char** argv ) {
 
             // Calculate normals of cloud_plane            
 
-           
+            
             visualization_msgs::MarkerArray maAverage;
             visualization_msgs::MarkerArray ma_seg;
 
@@ -75,8 +77,8 @@ int main ( int argc, char** argv ) {
             averageNormals->points[0].normal_z = cloud_plane_normals->points[ ( cloud_plane_normals->width ) /2 + 10].normal_z;
 
             // Transorm the computed normal in a MarkerArray
-            maAverage = pcl_segmentation.fromNormaltoMarkerArray ( averageNormals, averagePoints, "ci/world_odom", 0.5 );
-            ma_seg = pcl_segmentation.fromNormaltoMarkerArray ( cloud_plane_normals, cloud_plane, "ci/world_odom", 0.1 );
+            maAverage = pcl_segmentation.fromNormaltoMarkerArray ( averageNormals, averagePoints, "world", 0.5 );
+            ma_seg = pcl_segmentation.fromNormaltoMarkerArray ( cloud_plane_normals, cloud_plane, "world", 0.1 );
 
             // Publish it on rviz
             pub_avg.publish ( maAverage );
@@ -84,17 +86,16 @@ int main ( int argc, char** argv ) {
 
             // Create the homogenous matrix related to the computed normal
             Eigen::Affine3d hM;
-            
+              
             hM = pcl_segmentation.fromNormalToHomogeneous ( averagePoints, averageNormals); 
 
             // Brodcast the created frame
-            pcl_segmentation.broadcastTF ( hM, "ci/world_odom", "normal_frame" );
-            
+            pcl_segmentation.broadcastTF ( hM, "world", "normal_frame" );
+                
         }
 
 
         ros::spinOnce ();
         loop_rate.sleep ();
-    }
-    
+        }    
 }
