@@ -1,5 +1,5 @@
 # PCL_Perception
-The repository can be used to perform a planar segmentation of a Point Cloud and to extract the relative normal-to-plane when performing simulations with the Centauro robot.
+The repository can be used to perform a planar segmentation of a Point Cloud and to extract the relative normal-to-plane using the Centauro robot.
 
 # Prerequisites
 In order to make the project compile and run, those packages are required:
