@@ -4,7 +4,6 @@
     <arg name="rviz" default="true"/>
     <arg name="octomap" default="true"/>
     <arg name="pass_through_filter" default="true"/>
-    <arg name="planar_segmentation" default="true"/>
       
     <include if="$(arg gazebo_sim)" file="$(find PCL_Perception)/launch/gazebo_sim.launch"/>
     
