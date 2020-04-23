@@ -2,6 +2,7 @@
   
   <!-- load the model urdf-->
   <param name="robot_description" textfile="$(find PCL_Perception)/config/urdf/centauro_generated.urdf"/>
+  <param name="use_sim_time" type="bool" value="true"/>
 
   <!-- gazebo arguments -->
   <arg name="gazebo" default="true"/>

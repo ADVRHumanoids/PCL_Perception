@@ -1,5 +1,5 @@
 #include <pcl_uca/pcl_uca.h>
-#include <cartesian_interface/ros/RosClient.h>
+#include <cartesian_interface/ros/RosImpl.h>
 #include <std_srvs/Empty.h>
 #include <ros/ros.h>
 #include <PCL_Perception/SetReferenceFrame.h>
@@ -11,7 +11,7 @@ int main ( int argc, char** argv ) {
     bool start_broadcast = false;
 
     // Dataset
-    XBot::Cartesian::RosClient ci_client;
+    XBot::Cartesian::RosImpl ci_client;
     Eigen::Affine3d T_ref; //FINAL REFERENCE SENT TO ROBOT
     
     // Create the reference car_frame   
@@ -32,10 +32,10 @@ int main ( int argc, char** argv ) {
         // Get the transform world/normal and  world/car_frame
         ros::Time now = ros::Time(0);
         try {
-            listener_wc.waitForTransform ( "ci/world", "ci/car_frame", now, ros::Duration ( 3.0 ) );
-            listener_wc.lookupTransform ( "ci/world", "ci/car_frame", now, transform_wc );
-            listener_wn.waitForTransform ( "ci/world", "normal_frame", now, ros::Duration ( 3.0 ) );
-            listener_wn.lookupTransform ( "ci/world", "normal_frame", now, transform_wn );
+            listener_wc.waitForTransform ( "ci/world_odom", "ci/car_frame", now, ros::Duration ( 3.0 ) );
+            listener_wc.lookupTransform ( "ci/world_odom", "ci/car_frame", now, transform_wc );
+            listener_wn.waitForTransform ( "ci/world_odom", "normal_frame", now, ros::Duration ( 3.0 ) );
+            listener_wn.lookupTransform ( "ci/world_odom", "normal_frame", now, transform_wn );
         } catch ( tf::TransformException ex ) {
             ROS_ERROR ( "%s",ex.what() );
             ros::Duration ( 1.0 ).sleep();
@@ -74,7 +74,7 @@ int main ( int argc, char** argv ) {
         if(start_broadcast)
         {
             tf::transformEigenToTF(T_ref, transform);
-            broadcaster.sendTransform(tf::StampedTransform ( transform, ros::Time::now(), "ci/world", "reference_frame" ) );
+            broadcaster.sendTransform(tf::StampedTransform ( transform, ros::Time::now(), "ci/world_odom", "reference_frame" ) );
         }
         ros::spinOnce();
         rate.sleep();

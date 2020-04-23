@@ -6,7 +6,9 @@
     <arg name="pass_through_filter" default="true"/>
     <arg name="planar_segmentation" default="true"/>
       
+<!--     <include file="$(find cartesian_interface)/examples/launch/centauro_car_model.launch"/> -->
     <include if="$(arg gazebo_sim)" file="$(find PCL_Perception)/launch/gazebo_sim.launch"/>
+    
     
     <!-- Include octomap if required -->
     <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
