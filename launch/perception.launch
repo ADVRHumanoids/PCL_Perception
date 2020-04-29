@@ -11,12 +11,15 @@
     <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
         <param name="resolution" value="0.05" />
         <!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
-        <param name="frame_id" type="string" value="world" />
+        <param name="frame_id" type="string" value="ci/world" />
         <!-- maximum range to integrate (speedup!) -->
         <param name="sensor_model/max_range" value="5.0" />
         <!-- data source to integrate (PointCloud2) -->
         <remap from="cloud_in" to="/velodyne_points" />
     </node>
+    
+    <node pkg="tf" type="static_transform_publisher" name="world_connecters"
+        args="0 0 0. 0 0 0 world ci/world 30"/>
     
     <!--Pass Through Filter with default arguments: +/- 50 on z-axis with normal filter behavior
         use the remap command to specify the input topic on which the point cloud is loaded-->
