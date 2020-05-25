@@ -10,8 +10,8 @@ void pcl_uca::callback ( const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& msg ) {
 
 pcl_uca::pcl_uca ( const std::string& from_topic, ros::NodeHandle& nh ) :
     _cloud_rcv ( new pcl::PointCloud<pcl::PointXYZ> ),
-    _nh ( nh ) {
-
+    _nh ( nh ) 
+{
     _sub = _nh.subscribe<pcl::PointCloud<pcl::PointXYZ> > ( from_topic,
             1,
             &pcl_uca::callback,
@@ -85,7 +85,7 @@ void pcl_uca::planarSegmentationFromNormals ( pcl::PointCloud< pcl::PointXYZ >::
     seg.setInputCloud ( inputCloud );
     seg.setInputNormals ( cloud_normals );
     seg.segment ( *inliers, *coefficients );
-
+    
 }
 
 

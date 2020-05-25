@@ -190,6 +190,9 @@ target_link_libraries(cartesian_task_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} p
 add_executable(return_node src/return_node.cpp)
 target_link_libraries(return_node ${catkin_LIBRARIES} ${PCL_LIBRARIES} pcl_uca)
 
+add_executable(world_connecter src/world_connecter.cpp)
+target_link_libraries(world_connecter ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############
@@ -255,6 +258,12 @@ install(TARGETS normal_surface_node
 )
 
 install(TARGETS planar_segmentation_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(TARGETS world_connecter
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

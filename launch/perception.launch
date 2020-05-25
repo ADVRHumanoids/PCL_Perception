@@ -11,22 +11,30 @@
     <node pkg="octomap_server" type="octomap_server_node" name="octomap_server">
         <param name="resolution" value="0.05" />
         <!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
-        <param name="frame_id" type="string" value="ci/world" />
+        <param name="frame_id" type="string" value="world" />
         <!-- maximum range to integrate (speedup!) -->
         <param name="sensor_model/max_range" value="5.0" />
         <!-- data source to integrate (PointCloud2) -->
-        <remap from="cloud_in" to="/velodyne_points" />
+        <remap from="cloud_in" to="/filtered_cloud" />
+        <param name="filter_ground" type="bool" value="true"/>
+        <param name="base_frame_id" type="string" value="world"/>
+        <param name="ground_filter/distance" value="0.15"/>
+        <param name="ground_filter/plane_distance" value="0.25"/>
+        <param name="ground_filter/plane_distance" value="0.6"/>
     </node>
     
     <node pkg="tf" type="static_transform_publisher" name="world_connecters"
         args="0 0 0. 0 0 0 world ci/world 30"/>
+    
+    <node pkg="PCL_Perception" type="world_connecter" name ="pelvis_connecter" output="screen"
+          args="world ci/world pelvis ci/pelvis"/>
     
     <!--Pass Through Filter with default arguments: +/- 50 on z-axis with normal filter behavior
         use the remap command to specify the input topic on which the point cloud is loaded-->
     <node if="$(arg pass_through_filter)" pkg="PCL_Perception" type="pass_through" name="pass_through_filter" output="screen"
           args = "-50.0 50.0 z false">
         <remap unless="$(arg octomap)" from="/cloud_in" to="/velodyne_points"/> 
-        <remap if="$(arg octomap)" from="/cloud_in" to="/octomap_point_cloud_centers"/>
+        <remap if="$(arg octomap)" from="/cloud_in" to="/velodyne_points"/>
     </node>
             
     <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz"
