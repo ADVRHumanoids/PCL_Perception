@@ -25,7 +25,7 @@ The launch file includes the gazebo_sim.launche (if flag 'gazebo' is set to true
 **TBN**: if PointCloud returns an error, typically when using rosmon, simply restart the launch file.
 
 To rotate the velodyne joint:
-  - `rosservice call /xbotcore/XBotCommunicationPlugin_switch1`
+  - `rosservice call /xbotcore/XBotCommunicationPlugin_switch 1`
   - `rostopic pub /xbotcore/command xbot_msgs/JointCommand "header:
      seq: 0
      stamp: {secs: 0, nsecs: 0}
