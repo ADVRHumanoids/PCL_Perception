@@ -26,19 +26,23 @@ The launch file includes the gazebo_sim.launche (if flag 'gazebo' is set to true
 
 To rotate the velodyne joint:
   - `rosservice call /xbotcore/XBotCommunicationPlugin_switch 1`
-  - `rostopic pub /xbotcore/command xbot_msgs/JointCommand "header:
-     seq: 0
-     stamp: {secs: 0, nsecs: 0}
-     frame_id: ''
-     name: ['neck_velodyne']
-     position: [0]
-     velocity: [3.14]
-     effort: [0]
-     stiffness: [0]
-     damping: [10]
-     ctrl_mode: [26]
-     aux_name: ''
-     aux: [0]" -r 20`
+
+```
+rostopic pub /xbotcore/command xbot_msgs/JointCommand "header:
+  seq: 0
+  stamp: {secs: 0, nsecs: 0}
+  frame_id: ''
+name: ['neck_velodyne']
+position: [0]
+velocity: [3.14]
+effort: [0]
+stiffness: [0]
+damping: [10]
+ctrl_mode: [26]
+aux_name: ''
+aux: [0]" -r 20 
+     
+```
      
 The velodyne should be now rotating and selecting /octomap_point_cloud_centers in rviz topic the whole environment should be visible as PointCloud
 
