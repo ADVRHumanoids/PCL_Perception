@@ -4,9 +4,9 @@ The repository can be used to perform a planar segmentation of a Point Cloud and
 # Prerequisites
 In order to make the project compile and run, those packages are required:
   - centauro-simulator: https://github.com/ADVRHumanoids/centauro-simulator
-  - octomap: `sudo apt-get ros-kinetic-octomap*`
+  - octomap: `sudo apt-get install ros-kinetic-octomap*`
   - CartesianInterface: https://github.com/ADVRHumanoids/CartesianInterface
-  - PCL 1.7: `sudo apt-get ros-kinetic-pcl*`
+  - PCL 1.7: `sudo apt-get install ros-kinetic-pcl*`
   - velodyne_gazebo_plugin: https://bitbucket.org/DataspeedInc/velodyne_simulator/src/master/
   
 # Install
